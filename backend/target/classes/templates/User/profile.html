@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/userbase :: layout(
+          content = ~{::content},
+          script  = ~{::script}
+      )}">
+
+<body>
+
+    <!-- ===============    CONTENT SECTION    =============== -->
+    <section th:fragment="content">
+
+        <div class="max-w-5xl mx-auto">
+
+            <!-- PROFILE HEADER CARD -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-4">
+                <!-- Cover -->
+                <div class="relative">
+                    <div class="h-[400px] relative mb-7 overflow-hidden">
+                        <img th:if="${profileUser.coverUrl != null}" th:src="@{'/uploads_avatar/' + ${profileUser.coverUrl}}"
+                            class="w-full h-full object-cover absolute inset-0">
+                        <div th:unless="${profileUser.coverUrl != null}"
+                            class="w-full h-full bg-gradient-to-br from-blue-400 via-blue-600 to-indigo-700 absolute inset-0"></div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"></div>
+                        <a th:if="${profileUser.coverUrl != null}" th:href="@{'/uploads_avatar/' + ${profileUser.coverUrl}}"
+                            target="_blank" rel="noopener" aria-label="Xem ảnh bìa"
+                            class="absolute inset-0 z-10"></a>
+                    </div>
+                    <div th:if="${currentUser != null and currentUser.id == profileUser.id}" class="absolute bottom-4 right-4 z-20">
+                        <button type="button" onclick="document.getElementById('coverInput').click()"
+                            class="px-4 py-2 bg-white rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition flex items-center gap-2 shadow-lg">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Chỉnh sửa ảnh bìa
+                        </button>
+                        <form th:action="@{/user/{id}/cover(id=${profileUser.id})}" method="post" enctype="multipart/form-data"
+                            id="coverForm" style="display: none;">
+                            <input type="file" id="coverInput" name="cover" accept="image/*" onchange="this.form.submit()">
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Profile info -->
+                <div class="px-4 sm:px-6 pb-4 pt-4">
+                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 -mt-12 md:-mt-14">
+                        <div class="flex flex-col md:flex-row md:items-center gap-4">
+                            <div class="relative w-44 h-44 rounded-full border-4 border-white shadow-xl bg-gray-200 overflow-visible">
+                                <div class="w-full h-full rounded-full overflow-hidden">
+                                    <img th:if="${profileUser.avatarUrl != null}" th:src="@{'/uploads_avatar/' + ${profileUser.avatarUrl}}"
+                                        class="w-full h-full object-cover">
+                                    <div th:unless="${profileUser.avatarUrl != null}"
+                                        class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white text-6xl font-bold">
+                                        <span th:text="${#strings.substring(profileUser.fullName, 0, 1).toUpperCase()}"></span>
+                                    </div>
+                                </div>
+                                <a th:if="${profileUser.avatarUrl != null}" th:href="@{'/uploads_avatar/' + ${profileUser.avatarUrl}}"
+                                    target="_blank" rel="noopener" aria-label="Xem ảnh đại diện"
+                                    class="absolute inset-0 rounded-full z-10"></a>
+                                <button th:if="${currentUser != null and currentUser.id == profileUser.id}" type="button"
+                                    onclick="document.getElementById('avatarInput').click()"
+                                    class="absolute -bottom-2 -right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center border border-gray-200 shadow-lg z-20 hover:bg-gray-50 transition">
+                                    <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                </button>
+                                <form th:action="@{/user/{id}/avatar(id=${profileUser.id})}" method="post" enctype="multipart/form-data"
+                                    id="avatarForm" style="display: none;">
+                                    <input type="file" id="avatarInput" name="avatar" accept="image/*" onchange="this.form.submit()">
+                                </form>
+                            </div>
+
+                            <div class="pb-2">
+                                <h1 class="text-3xl sm:text-4xl font-bold text-gray-900" th:text="${profileUser.fullName}"></h1>
+                                <p class="text-gray-500 mt-1 text-sm sm:text-base" th:text="'@' + ${profileUser.username}"></p>
+                                <div class="flex flex-wrap gap-4 mt-3 text-sm text-gray-700">
+                                    <div>
+                                        <span class="font-semibold text-gray-900" th:text="${#lists.size(posts)}">0</span>
+                                        <span class="text-gray-500">bài viết</span>
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-gray-900">1.2K</span>
+                                        <span class="text-gray-500">bạn bè</span>
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-gray-900">890</span>
+                                        <span class="text-gray-500">theo dõi</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 pb-2">
+                            <div th:if="${currentUser != null and currentUser.id == profileUser.id}">
+                                <a th:href="@{/user/{id}/edit(id=${profileUser.id})}" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium 
+                                           hover:bg-blue-700 transition flex items-center gap-2 shadow-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414
+                                               a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    Chỉnh sửa
+                                </a>
+                            </div>
+
+                            <div th:unless="${currentUser != null and currentUser.id == profileUser.id}" class="flex gap-2 flex-wrap" id="friend-action-wrap">
+                                <div th:if="${currentUser == null}">
+                                    <a th:href="@{/login}"
+                                        class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                        </svg>
+                                        Đăng nhập để kết bạn
+                                    </a>
+                                </div>
+
+                                <div th:if="${currentUser != null}" class="flex gap-2 flex-wrap items-center"
+                                    th:attr="data-profile-id=${profileUser.id},data-friendship-id=${friendshipId}">
+                                    <div th:switch="${friendshipStatus}">
+                                        <div th:case="'ACCEPTED'">
+                                            <button type="button"
+                                                class="px-5 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold flex items-center gap-2"
+                                                th:onclick="|openUnfriendModal(${profileUser.id})|">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                Friend
+                                            </button>
+                                        </div>
+                            
+
+                                        <div th:case="'PENDING'">
+                                            <div th:if="${isRequestSender}" class="flex gap-2 flex-wrap items-center">
+                                                <button class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold flex items-center gap-2" disabled>
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                                    </svg>
+                                                    Đã gửi lời mời
+                                                </button>
+                                                <button type="button"
+                                                    class="px-5 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition"
+                                                    th:attr="data-friendship-id=${friendshipId}"
+                                                    onclick="friendAction('cancel', this.dataset.friendshipId)">
+                                                    Hủy lời mời
+                                                </button>
+                                            </div>
+                                            <div th:unless="${isRequestSender}" class="flex gap-2 flex-wrap">
+                                                <button type="button"
+                                                    class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+                                                    th:attr="data-friendship-id=${friendshipId}"
+                                                    onclick="friendAction('accept', this.dataset.friendshipId)">
+                                                    Chấp nhận
+                                                </button>
+                                                <button type="button"
+                                                    class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition"
+                                                    th:attr="data-friendship-id=${friendshipId}"
+                                                    onclick="friendAction('decline', this.dataset.friendshipId)">
+                                                    Từ chối
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div th:case="'BLOCKED'">
+                                            <button class="px-5 py-2 bg-gray-300 text-gray-600 rounded-lg text-sm font-medium flex items-center gap-2" disabled>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636A9 9 0 105.636 18.364 9 9 0 0018.364 5.636zM15 9l-6 6"></path>
+                                                </svg>
+                                                Đang chặn
+                                            </button>
+                                        </div>
+                                        <div th:case="*">
+                                            <button type="button"
+                                                class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2"
+                                                th:inline="text"
+                                                th:attr="data-user-id=${profileUser.id}"
+                                                onclick="friendAction('request', this.dataset.userId)">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                                </svg>
+                                                Thêm bạn bè
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button
+                                        class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                                            </path>
+                                        </svg>
+                                        Nhắn tin
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Tabs -->
+                    <!-- Tabs -->
+                    <div class="flex gap-1 overflow-x-auto">
+
+                        <!-- Bài viết -->
+                        <a th:href="@{/user/{id}(id=${profileUser.id})}"
+                           class="px-5 py-3 text-sm whitespace-nowrap transition text-gray-600 hover:bg-gray-100"
+                           th:classappend="${activeTab == 'posts'} ? ' text-blue-600 border-b-2 border-blue-600 font-semibold' : ''">
+                            Bài viết
+                        </a>
+
+                        <!-- Giới thiệu -->
+                        <a th:href="@{/user/{id}/about(id=${profileUser.id})}"
+                           class="px-5 py-3 text-sm whitespace-nowrap transition text-gray-600 hover:bg-gray-100"
+                           th:classappend="${activeTab == 'about'} ? ' text-blue-600 border-b-2 border-blue-600 font-semibold' : ''">
+                            Giới thiệu
+                        </a>
+
+                        <!-- Bạn bè -->
+                        <a th:href="@{/user/{id}/friends(id=${profileUser.id})}"
+                           class="px-5 py-3 text-sm whitespace-nowrap transition text-gray-600 hover:bg-gray-100"
+                           th:classappend="${activeTab == 'friends'} ? ' text-blue-600 border-b-2 border-blue-600 font-semibold' : ''">
+                            Bạn bè
+                        </a>
+
+                        <!-- Ảnh -->
+                        <a th:href="@{/user/{id}/photos(id=${profileUser.id})}"
+                           class="px-5 py-3 text-sm whitespace-nowrap transition text-gray-600 hover:bg-gray-100"
+                           th:classappend="${activeTab == 'photos'} ? ' text-blue-600 border-b-2 border-blue-600 font-semibold' : ''">
+                            Ảnh
+                        </a>
+
+                        <!-- Video -->
+                        <a th:href="@{/user/{id}/videos(id=${profileUser.id})}"
+                           class="px-5 py-3 text-sm whitespace-nowrap transition text-gray-600 hover:bg-gray-100"
+                           th:classappend="${activeTab == 'videos'} ? ' text-blue-600 border-b-2 border-blue-600 font-semibold' : ''">
+                            Video
+                        </a>
+
+                    </div>
+
+
+
+
+                    <!-- CONTENT GRID (2 Columns on Desktop) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+                <!-- Left Column: About -->
+                <div class="lg:col-span-5">
+                    <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+                        <!-- BIO -->
+                         <div class="mb-4" >
+                        <h2 class="font-bold text-xl mb-2">Giới thiệu</h2>
+                        <p th:if="${profileUser.bio != null}" class="mt-2 text-gray-800 text-[15px] leading-snug whitespace-pre-line"
+                            th:text="${profileUser.bio}">
+                        </p>
+                        <p th:unless="${profileUser.bio != null}" class="mt-2 text-gray-500 text-sm">
+                            Chưa có giới thiệu nào.
+                        </p>
+                        </div>
+
+                        
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="font-bold text-xl">Bạn bè</h2>
+                            <span class="text-sm text-gray-500" th:text="${#lists.size(friends)} + ' bạn'">0 bạn</span>
+                        </div>
+                        <div th:if="${#lists.isEmpty(friends)}" class="text-sm text-gray-500">Chưa có bạn bè.</div>
+                        <div th:unless="${#lists.isEmpty(friends)}" class="grid grid-cols-3 gap-3">
+                            <a th:each="f,iter : ${friends}" th:if="${iter.index < 9}" th:href="@{/user/{id}(id=${f.id})}"
+                                class="flex flex-col items-center gap-2 hover:bg-gray-50 rounded-lg p-2 transition">
+                                <img th:if="${f.avatarUrl != null}" th:src="@{'/uploads_avatar/' + ${f.avatarUrl}}"
+                                    class="w-16 h-16 rounded-full object-cover border border-gray-200">
+                                <div th:if="${f.avatarUrl == null}" class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center font-semibold">
+                                    <span th:text="${#strings.substring(f.fullName,0,1).toUpperCase()}"></span>
+                                </div>
+                                <span class="text-sm font-semibold text-gray-900 text-center line-clamp-2" th:text="${f.fullName}">Tên</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div th:if="${currentUser != null}" class="bg-white rounded-lg shadow-sm p-4 mb-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="font-bold text-lg">Lời mời kết bạn</h2>
+                            <span class="text-sm text-gray-500" th:text="${#lists.size(pendingFriendRequests)} + ' lời mời'">0 lời mời</span>
+                        </div>
+                        <div th:if="${#lists.isEmpty(pendingFriendRequests)}" class="text-sm text-gray-500">Không có lời mời.</div>
+                        <div th:each="fr : ${pendingFriendRequests}" class="flex items-center justify-between mb-3 last:mb-0">
+                            <div class="flex items-center gap-3">
+                                <img th:if="${fr.sender.avatarUrl != null}" th:src="@{'/uploads_avatar/' + ${fr.sender.avatarUrl}}"
+                                    class="w-10 h-10 rounded-full object-cover">
+                                <div th:if="${fr.sender.avatarUrl == null}" class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-semibold">
+                                    <span th:text="${#strings.substring(fr.sender.fullName,0,1).toUpperCase()}"></span>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-900" th:text="${fr.sender.fullName}">Tên</p>
+                                    <p class="text-xs text-gray-500" th:text="'@' + ${fr.sender.username}"></p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm"
+                                    th:attr="data-friendship-id=${fr.id}" onclick="friendAction('accept', this.dataset.friendshipId)">
+                                    Chấp nhận
+                                </button>
+                                <button type="button" class="px-3 py-1.5 bg-gray-200 text-gray-700 rounded-md text-sm"
+                                    th:attr="data-friendship-id=${fr.id}" onclick="friendAction('decline', this.dataset.friendshipId)">
+                                    Từ chối
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${currentUser != null}" class="bg-white rounded-lg shadow-sm p-4 mb-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="font-bold text-lg">Gợi ý kết bạn</h2>
+                            <span class="text-sm text-gray-500" th:text="${#lists.size(friendSuggestions)} + ' gợi ý'">0 gợi ý</span>
+                        </div>
+                        <div th:if="${#lists.isEmpty(friendSuggestions)}" class="text-sm text-gray-500">Không có gợi ý.</div>
+                        <div th:each="u : ${friendSuggestions}" class="flex items-center justify-between mb-3 last:mb-0">
+                            <div class="flex items-center gap-3">
+                                <img th:if="${u.avatarUrl != null}" th:src="@{'/uploads_avatar/' + ${u.avatarUrl}}"
+                                    class="w-10 h-10 rounded-full object-cover">
+                                <div th:if="${u.avatarUrl == null}" class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-semibold">
+                                    <span th:text="${#strings.substring(u.fullName,0,1).toUpperCase()}"></span>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-900" th:text="${u.fullName}">Tên</p>
+                                    <p class="text-xs text-gray-500" th:text="'@' + ${u.username}"></p>
+                                </div>
+                            </div>
+                            <button type="button" class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm"
+                                th:attr="data-user-id=${u.id}" onclick="friendAction('request', this.dataset.userId)">
+                                Kết bạn
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Photos Section -->
+                    <div class="bg-white rounded-lg shadow-sm p-4">
+                    
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-bold text-xl">Ảnh</h2>
+                            <a th:href="@{/user/{id}/photos(id=${profileUser.id})}" class="text-sm text-blue-600 hover:underline">Xem tất
+                                cả</a>
+                        </div>
+                    
+                        <!-- Khi không có ảnh -->
+                        <div th:if="${#lists.isEmpty(images)}" class="text-gray-500 text-sm py-4 text-center">
+                            Chưa có ảnh nào
+                        </div>
+                    
+                        <!-- Khi có ảnh -->
+                        <div th:unless="${#lists.isEmpty(images)}" class="grid grid-cols-3 gap-2">
+                    
+                            <!-- Lặp 6 ảnh đầu tiên -->
+                            <div th:each="img, iter : ${images}" th:if="${iter.index < 6}"
+                                class="relative aspect-square rounded-lg overflow-hidden bg-gray-200">
+                    
+                                <img th:src="@{'/uploads/' + ${img.imageUrl}}" class="w-full h-full object-cover">
+                    
+                                <!-- Nếu ảnh thứ 6 và tổng ảnh > 6 -> hiện overlay -->
+                                <div th:if="${iter.index == 5 and #lists.size(images) > 6}"
+                                    class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                    <span class="text-white text-xl font-semibold" th:text="'+' + (${#lists.size(images)} - 6)"></span>
+                                </div>
+                    
+                            </div>
+                    
+                        </div>
+                    
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Posts -->
+                <div class="lg:col-span-7">
+
+                    <!-- Create Post (if own profile) -->
+                    <div th:if="${currentUser != null and currentUser.id == profileUser.id}"
+                        class="bg-white rounded-lg shadow-sm p-4 mb-4">
+                        <div class="flex gap-3">
+                            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                                <img th:if="${profileUser.avatarUrl != null}" th:src="@{'/uploads_avatar/' + ${profileUser.avatarUrl}}"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <a href="/post/create"
+                                class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 text-left transition-smooth cursor-pointer">
+                                Bạn đang nghĩ gì?
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Posts List -->
+                    <div class="space-y-4">
+                        <div th:if="${#lists.isEmpty(posts)}" class="bg-white rounded-lg shadow-sm p-12 text-center">
+                            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            <p class="text-gray-500 font-medium">Chưa có bài viết nào</p>
+                            <p class="text-gray-400 text-sm mt-1">Hãy chia sẻ điều gì đó với bạn bè!</p>
+                        </div>
+
+                        <!-- Post Card -->
+                        <article th:each="post : ${posts}" class="bg-white rounded-lg shadow-sm hover:shadow-md transition-smooth"
+                            th:attr="data-post-id=${post.id},data-user-reaction=${userReactions != null ? userReactions.get(post.id) : ''}">
+
+                            <div class="p-4 pb-3 cursor-pointer" th:onclick="'window.location.href=\'/post/' + '[[${post.id}]]' + '\''">
+
+                            <!-- Post Header -->
+                            <div class="p-4 pb-3">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                                        <img th:if="${profileUser.avatarUrl != null}" th:src="@{'/uploads_avatar/' + ${profileUser.avatarUrl}}"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-semibold text-sm text-gray-900 hover:underline"
+                                            th:text="${profileUser.fullName}"></p>
+                                        <div class="flex items-center gap-1 text-xs text-gray-500">
+                                            <span
+                                                th:text="${#temporals.format(post.createdAt,'dd/MM/yyyy HH:mm')}"></span>
+                                            <span>·</span>
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z"
+                                                    clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    
+
+                                    <!-- MENU  -->
+                                    <div class="relative">
+                                        <button class="p-2 hover:bg-gray-100 rounded-full transition"
+                                            onclick="togglePostMenu(this); event.stopPropagation();">
+                                            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                            </svg>
+                                        </button>
+                                    
+                                        <!-- DROPDOWN MENU -->
+                                        <div class="post-menu absolute right-0 mt-2 w-40 bg-white shadow-lg border border-gray-200 rounded-lg z-50 hidden">
+                                    
+                                            <!-- Nếu là chủ bài viết -->
+                                            <a th:if="${currentUser != null and currentUser.id == post.author.id}"
+                                                th:href="@{/post/{id}/edit(id=${post.id})}" class="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
+                                                <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                Chỉnh sửa
+                                            </a>
+                                    
+                                            <button th:if="${currentUser != null and currentUser.id == post.author.id}"
+                                                th:onclick="'openDeleteModal(' + ${post.id} + '); event.stopPropagation();'"
+                                                class="w-full text-left px-4 py-2 hover:bg-red-100 text-sm text-red-600">
+                                                <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                Xóa
+                                            </button>
+                                    
+                                            <!-- Nếu không phải chủ bài viết -->
+                                            <button th:unless="${currentUser != null and currentUser.id == post.author.id}"
+                                                th:onclick="'openReportModal(' + ${post.id} + '); event.stopPropagation();'"
+                                                class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
+                                                <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                </svg>
+                                                Báo cáo
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- DELETE MODAL -->
+                                    <div id="deleteModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+                                        <div class="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
+                                            <h2 class="text-xl font-semibold mb-4">Xóa bài viết?</h2>
+                                            <p class="text-gray-600 mb-6">Bạn chắc chắn muốn xóa bài viết này? Hành động này không thể hoàn tác.</p>
+                                    
+                                            <div class="flex justify-end gap-3">
+                                                <button onclick="closeDeleteModal()" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">
+                                                    Hủy
+                                                </button>
+                                    
+                                                <form id="deleteForm" method="POST">
+                                                    <button type="submit" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">
+                                                        Xóa
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- REPORT MODAL -->
+                                    <div id="reportModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+                                        <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+                                            <h2 class="text-xl font-semibold mb-4">Báo cáo bài viết</h2>
+                                            <p class="text-gray-600 mb-4">Vui lòng chọn lý do báo cáo:</p>
+                                    
+                                            <form id="reportForm" onsubmit="submitReport(event)">
+                                                <div class="space-y-2 mb-4">
+                                                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                                        <input type="radio" name="reason" value="Spam hoặc quảng cáo" required class="mr-3">
+                                                        <span>Spam hoặc quảng cáo</span>
+                                                    </label>
+                                                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                                        <input type="radio" name="reason" value="Nội dung không phù hợp" class="mr-3">
+                                                        <span>Nội dung không phù hợp</span>
+                                                    </label>
+                                                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                                        <input type="radio" name="reason" value="Thông tin sai sự thật" class="mr-3">
+                                                        <span>Thông tin sai sự thật</span>
+                                                    </label>
+                                                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                                        <input type="radio" name="reason" value="Bạo lực hoặc ngôn từ thù ghét" class="mr-3">
+                                                        <span>Bạo lực hoặc ngôn từ thù ghét</span>
+                                                    </label>
+                                                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                                        <input type="radio" name="reason" value="Khác" class="mr-3">
+                                                        <span>Khác</span>
+                                                    </label>
+                                                </div>
+                                    
+                                                <div class="flex justify-end gap-3">
+                                                    <button type="button" onclick="closeReportModal()"
+                                                        class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">
+                                                        Hủy
+                                                    </button>
+                                    
+                                                    <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                                                        Gửi báo cáo
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Post Content -->
+                                <p class="text-gray-800 text-sm leading-relaxed mb-3" th:text="${post.content}"></p>
+                            </div>
+
+                            <!-- ============ HÌNH ẢNH ============ -->
+                            <div th:if="${post.images != null and !#lists.isEmpty(post.images)}" class="relative bg-black">
+                            
+                                <!-- 1 ảnh: Full width -->
+                                <div th:if="${#lists.size(post.images) == 1}">
+                                    <a th:href="@{/post/{id}(id=${post.id})}" class="block">
+                                        <img th:src="@{'/uploads/' + ${post.images[0].imageUrl}}" alt="Post image"
+                                            class="w-full max-h-[600px] object-contain mx-auto cursor-pointer hover:opacity-95 transition">
+                                    </a>
+                                </div>
+                            
+                                <!-- 2 ảnh: Grid 2 cột -->
+                                <div th:if="${#lists.size(post.images) == 2}" class="grid grid-cols-2 gap-0.5">
+                                    <a th:each="img : ${post.images}" th:href="@{/post/{id}(id=${post.id})}"
+                                        class="relative overflow-hidden aspect-square block">
+                                        <img th:src="@{'/uploads/' + ${img.imageUrl}}" alt="Post image"
+                                            class="w-full h-full object-cover cursor-pointer hover:opacity-95 transition">
+                                    </a>
+                                </div>
+                            
+                                <!-- 3 ảnh: 1 lớn bên trái + 2 nhỏ bên phải -->
+                                <div th:if="${#lists.size(post.images) == 3}" class="grid grid-cols-2 gap-0.5">
+                                    <!-- Ảnh đầu tiên chiếm full height bên trái -->
+                                    <a th:href="@{/post/{id}(id=${post.id})}" class="relative overflow-hidden row-span-2 block">
+                                        <img th:src="@{'/uploads/' + ${post.images[0].imageUrl}}" alt="Post image"
+                                            class="w-full h-full object-cover cursor-pointer hover:opacity-95 transition">
+                                    </a>
+                            
+                                    <!-- 2 ảnh còn lại xếp dọc bên phải -->
+                                    <div class="grid grid-rows-2 gap-0.5">
+                                        <a th:href="@{/post/{id}(id=${post.id})}" class="relative overflow-hidden block">
+                                            <img th:src="@{'/uploads/' + ${post.images[1].imageUrl}}" alt="Post image"
+                                                class="w-full h-full object-cover cursor-pointer hover:opacity-95 transition">
+                                        </a>
+                                        <a th:href="@{/post/{id}(id=${post.id})}" class="relative overflow-hidden block">
+                                            <img th:src="@{'/uploads/' + ${post.images[2].imageUrl}}" alt="Post image"
+                                                class="w-full h-full object-cover cursor-pointer hover:opacity-95 transition">
+                                        </a>
+                                    </div>
+                                </div>
+                            
+                                <!-- 4+ ảnh: Grid 2x2 -->
+                                <div th:if="${#lists.size(post.images) >= 4}" class="grid grid-cols-2 gap-0.5">
+                                    <a th:each="img, iter : ${post.images}" th:if="${iter.index < 4}" th:href="@{/post/{id}(id=${post.id})}"
+                                        class="relative overflow-hidden aspect-square block">
+                                        <img th:src="@{'/uploads/' + ${img.imageUrl}}" alt="Post image"
+                                            class="w-full h-full object-cover cursor-pointer hover:opacity-95 transition">
+                            
+                                        <!-- Overlay nếu có nhiều hơn 4 ảnh -->
+                                        <div th:if="${iter.index == 3 && #lists.size(post.images) > 4}"
+                                            class="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center pointer-events-none">
+                                            <span class="text-white text-3xl font-semibold"
+                                                th:text="'+' + ${#lists.size(post.images) - 4}">+5</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            
+                            </div>
+
+                            <!-- Post Footer -->
+                            <footer class="p-3">
+                            
+                                <!-- Reaction + Comment Count -->
+                                <div class="flex items-center justify-between px-2 py-2 text-sm text-gray-600">
+                                    <div class="flex items-center gap-1">
+                                        <div class="flex -space-x-1" th:if="${topReactions[post.id] != null}">
+                                            <div th:each="rc : ${topReactions[post.id]}" class="w-5 h-5 rounded-full bg-white border-2 border-white">
+                                                <img th:src="@{'/reactions/' + ${#strings.toLowerCase(rc.type.name())} + '.png'}" class="w-full h-full object-contain">
+                                            </div>
+                                        </div>
+                                        <span class="like-count" th:text="${post.likeCount}">0</span>
+                                    </div>
+                            
+                                    <div class="flex items-center gap-3">
+                                        <span th:text="${post.commentCount} + ' bình luận'">0 bình luận</span>
+                                    </div>
+                                </div>
+                            
+                                <!-- Divider -->
+                                <div class="border-t border-gray-200 my-1"></div>
+                            
+                                <!-- 3 Action Buttons -->
+                                <div class="grid grid-cols-3 gap-1">
+                            
+                                    <!-- ======================= LIKE BUTTON ======================= -->
+                                    <div class="relative">
+                            
+                                        <button type="button" onclick="toggleLike(this); event.stopPropagation();"
+                                            onmouseenter="showReactionPopup(this)" onmouseleave="hideReactionPopup(this)" class="reaction-main-btn w-full py-2 rounded-lg hover:bg-gray-100 
+                                                                   flex items-center justify-center gap-2 transition-all">
+                            
+                                            <img class="reaction-icon object-contain" src="/reactions/non-reaction.png" alt="Reaction"
+                                                style="width: 20px; height: 20px;">
+                            
+                                            <span class="reaction-label text-[15px] font-medium text-gray-600">Thích</span>
+                                        </button>
+                            
+                                        <!-- Popup -->
+                                        <div class="reaction-popup absolute bottom-full left-1/2 -translate-x-1/2 mb-2
+                                                                bg-white border border-gray-200 rounded-full shadow-2xl
+                                                                flex items-center z-50" style="display: none; padding: 8px 12px; gap: 4px;"
+                                            onmouseenter="keepPopupOpen(this)" onmouseleave="hidePopupNow(this)">
+                            
+                                            <button type="button" onclick="handleReaction(this, 'LIKE'); event.stopPropagation();"
+                                                class="hover:scale-125 transition-transform"
+                                                style="padding: 4px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                <img src="/reactions/like.png" style="width: 40px; height: 40px; object-fit: contain;">
+                                            </button>
+                            
+                                            <button type="button" onclick="handleReaction(this, 'LOVE'); event.stopPropagation();"
+                                                class="hover:scale-125 transition-transform"
+                                                style="padding: 4px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                <img src="/reactions/love.png" style="width: 40px; height: 40px; object-fit: contain;">
+                                            </button>
+                            
+                                            <button type="button" onclick="handleReaction(this, 'HAHA'); event.stopPropagation();"
+                                                class="hover:scale-125 transition-transform"
+                                                style="padding: 4px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                <img src="/reactions/haha.png" style="width: 40px; height: 40px; object-fit: contain;">
+                                            </button>
+                            
+                                            <button type="button" onclick="handleReaction(this, 'WOW'); event.stopPropagation();"
+                                                class="hover:scale-125 transition-transform"
+                                                style="padding: 4px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                <img src="/reactions/wow.png" style="width: 40px; height: 40px; object-fit: contain;">
+                                            </button>
+                            
+                                            <button type="button" onclick="handleReaction(this, 'SAD'); event.stopPropagation();"
+                                                class="hover:scale-125 transition-transform"
+                                                style="padding: 4px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                <img src="/reactions/sad.png" style="width: 40px; height: 40px; object-fit: contain;">
+                                            </button>
+                            
+                                            <button type="button" onclick="handleReaction(this, 'ANGRY'); event.stopPropagation();"
+                                                class="hover:scale-125 transition-transform"
+                                                style="padding: 4px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                                <img src="/reactions/angry.png" style="width: 40px; height: 40px; object-fit: contain;">
+                                            </button>
+                            
+                                        </div>
+                                    </div>
+                            
+                                    <!-- ======================= COMMENT BUTTON ======================= -->
+                                    <a th:href="@{/post/{id}(id=${post.id})}" class="py-2 rounded-lg hover:bg-gray-100 
+                                                          flex items-center justify-center gap-2 transition-all">
+                            
+                                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                        </svg>
+                            
+                                        <span class="text-[15px] font-medium text-gray-600">Bình luận</span>
+                                    </a>
+                            
+                                    <!-- ======================= SHARE BUTTON ======================= -->
+                                    <button class="py-2 rounded-lg hover:bg-gray-100 
+                                                               flex items-center justify-center gap-2 transition-all">
+                            
+                                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                        </svg>
+                            
+                                        <span class="text-[15px] font-medium text-gray-600">Chia sẻ</span>
+                                    </button>
+                            
+                                </div>
+                            </footer>
+
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Unfriend Modal-->
+        <div id="unfriendModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 w-full max-w-sm shadow-xl">
+                <h2 class="text-xl font-semibold mb-4">Hủy kết bạn</h2>
+                <p class="text-gray-600 mb-6">Bạn có chắc muốn hủy kết bạn với người này?</p>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeUnfriendModal()"
+                        class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Hủy</button>
+                    <button type="button" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+                    onclick="friendAction('unfriend', unfriendTargetId)">
+                    Hủy kết bạn
+                </button>
+            </div>
+        </div>
+    </div>
+    </section>
+   
+
+<!-- ====================== SCRIPT ====================== -->
+<section th:fragment="script">
+    <script>
+        // Friend Actions: request, accept, decline, cancel, unfriend
+        function friendAction(action, targetId) {
+            let url = '';
+            switch (action) {
+                case 'request':
+                    url = `/friend/request/${targetId}`;
+                    break;
+                case 'accept':
+                    url = `/friend/${targetId}/accept`;
+                    break;
+                case 'decline':
+                    url = `/friend/${targetId}/decline`;
+                    break;
+                case 'cancel':
+                    url = `/friend/${targetId}/cancel`;
+                    break;
+                case 'unfriend':
+                    url = `/friend/unfriend/${targetId}`;
+                    break;
+                default:
+                    return;
+            }
+            fetch(url, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Co loi xay ra');
+                    }
+                })
+                .catch(() => alert('Vui long dang nhap'));
+        } 
+        // Unfriend Modal
+        function openUnfriendModal() { 
+            document.getElementById('unfriendModal')
+            .classList.remove('hidden');
+             document.getElementById('unfriendModal')
+             .classList.add('flex'); 
+            }
+        function closeUnfriendModal() {
+             document.getElementById('unfriendModal')
+             .classList.add('hidden');
+            document.getElementById('unfriendModal').
+            classList.remove('flex'); 
+        }
+
+
+        let hideTimeout = null;
+
+        function showReactionPopup(button) {
+            clearTimeout(hideTimeout);
+            const popup = button.nextElementSibling;
+            if (!popup) return;
+            popup.style.display = 'flex';
+        }
+
+        function hideReactionPopup(button) {
+            hideTimeout = setTimeout(() => {
+                const popup = button.nextElementSibling;
+                if (popup) popup.style.display = 'none';
+            }, 300);
+        }
+
+        function keepPopupOpen(popup) {
+            clearTimeout(hideTimeout);
+        }
+
+        function hidePopupNow(popup) {
+            hideTimeout = setTimeout(() => {
+                popup.style.display = 'none';
+            }, 300);
+        }
+
+        function toggleLike(button) {
+            const postDiv = button.closest('[data-post-id]');
+            const currentReaction = postDiv.dataset.userReaction || null;
+
+            if (currentReaction === 'LIKE') {
+                removeReaction(postDiv);
+            } else {
+                handleReaction(button, 'LIKE');
+            }
+        }
+
+        function handleReaction(button, reactionType) {
+            const postDiv = button.closest('[data-post-id]');
+            const postId = postDiv.dataset.postId;
+            const currentReaction = postDiv.dataset.userReaction || null;
+
+            if (currentReaction === reactionType) {
+                removeReaction(postDiv);
+            } else {
+                addReaction(postDiv, postId, reactionType);
+            }
+        }
+
+        function addReaction(postDiv, postId, reactionType) {
+            fetch('/reaction/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ postId: postId, type: reactionType })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        updateUI(postDiv, reactionType, data.totalReactions);
+                    } else {
+                        alert(data.message || 'Có lỗi xảy ra!');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Bạn cần đăng nhập để thực hiện hành động này!');
+                });
+        }
+
+        function removeReaction(postDiv) {
+            const postId = postDiv.dataset.postId;
+            fetch('/reaction/remove/' + postId, {
+                method: 'DELETE'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        updateUI(postDiv, null, data.totalReactions);
+                    } else {
+                        alert(data.message || 'Có lỗi xảy ra!');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Có lỗi xảy ra!');
+                });
+        }
+
+        function updateUI(postDiv, newReaction, totalReactions) {
+            postDiv.dataset.userReaction = newReaction || '';
+
+            const likeSpan = postDiv.querySelector('.like-count');
+            if (likeSpan) {
+                likeSpan.textContent = totalReactions;
+            }
+
+            const mainBtn = postDiv.querySelector('.reaction-main-btn');
+            const icon = postDiv.querySelector('.reaction-icon');
+            const label = postDiv.querySelector('.reaction-label');
+
+            const map = {
+                LIKE: { icon: '/reactions/like.png', label: 'Thích', color: 'text-blue-600' },
+                LOVE: { icon: '/reactions/love.png', label: 'Yêu thích', color: 'text-red-600' },
+                HAHA: { icon: '/reactions/haha.png', label: 'Haha', color: 'text-yellow-600' },
+                WOW: { icon: '/reactions/wow.png', label: 'Wow', color: 'text-yellow-600' },
+                SAD: { icon: '/reactions/sad.png', label: 'Buồn', color: 'text-yellow-600' },
+                ANGRY: { icon: '/reactions/angry.png', label: 'Phẫn nộ', color: 'text-orange-600' }
+            };
+
+            if (newReaction && map[newReaction]) {
+                icon.src = map[newReaction].icon;
+                label.textContent = map[newReaction].label;
+                label.className = `reaction-label text-[15px] font-semibold ${map[newReaction].color}`;
+            } else {
+                icon.src = '/reactions/non-reaction.png';
+                label.textContent = 'Thích';
+                label.className = 'reaction-label text-[15px] font-medium text-gray-600';
+            }
+
+            const popup = postDiv.querySelector('.reaction-popup');
+            if (popup) {
+                popup.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const posts = document.querySelectorAll('[data-post-id]');
+            posts.forEach(postDiv => {
+                const reaction = postDiv.dataset.userReaction || null;
+                const likeText = postDiv.querySelector('.like-count')?.textContent || '0';
+                if (reaction) {
+                    updateUI(postDiv, reaction, parseInt(likeText) || 0);
+                }
+            });
+        });
+
+        // Toggle dropdown menu
+            function togglePostMenu(btn) {
+                const menu = btn.nextElementSibling;
+                document.querySelectorAll('.post-menu').forEach(m => {
+                    if (m !== menu) m.classList.add('hidden');
+                });
+                menu.classList.toggle('hidden');
+            }
+
+            // Tắt menu khi click ra ngoài
+            document.addEventListener("click", () => {
+                document.querySelectorAll(".post-menu").forEach(menu => menu.classList.add("hidden"));
+            });
+
+            // Delete Modal
+            let deletePostId = null;
+            let unfriendTargetId = null;
+
+            function openDeleteModal(postId) {
+                deletePostId = postId;
+                document.getElementById('deleteModal').classList.remove('hidden');
+                document.getElementById('deleteModal').classList.add('flex');
+                document.getElementById('deleteForm').action = `/post/${postId}/delete`;
+            }
+
+            function closeDeleteModal() {
+                document.getElementById('deleteModal').classList.add('hidden');
+                document.getElementById('deleteModal').classList.remove('flex');
+            }
+
+            // Unfriend modal
+            function openUnfriendModal(profileId) {
+                unfriendTargetId = profileId;
+                const modal = document.getElementById('unfriendModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            }
+            function closeUnfriendModal() {
+                const modal = document.getElementById('unfriendModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    unfriendTargetId = null;
+                }
+            }
+
+            // Report Modal
+            let reportPostId = null;
+
+            function openReportModal(postId) {
+                reportPostId = postId;
+                document.getElementById('reportModal').classList.remove('hidden');
+                document.getElementById('reportModal').classList.add('flex');
+            }
+
+            function closeReportModal() {
+                document.getElementById('reportModal').classList.add('hidden');
+                document.getElementById('reportModal').classList.remove('flex');
+                document.getElementById('reportForm').reset();
+            }
+    </script>
+    
+ </section>
+    
+ </body>
+    </html>

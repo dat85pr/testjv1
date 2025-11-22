@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/userbase :: layout(
+          content = ~{::content},
+          script  = ~{::script}
+      )}">
+
+<body>
+<section th:fragment="content">
+
+    <div class="max-w-5xl mx-auto">
+
+        <!-- HEADER NHỎ -->
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
+                    <img th:if="${profileUser.avatarUrl != null}"
+                         th:src="@{'/uploads_avatar/' + ${profileUser.avatarUrl}}"
+                         class="w-full h-full object-cover">
+                    <div th:if="${profileUser.avatarUrl == null}"
+                         class="w-full h-full flex items-center justify-center font-bold text-xl bg-gradient-to-br from-blue-400 to-indigo-600 text-white">
+                        <span th:text="${#strings.substring(profileUser.fullName,0,1).toUpperCase()}"></span>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900"
+                        th:text="${profileUser.fullName}">Tên user</h1>
+                    <p class="text-sm text-gray-500"
+                       th:text="'@' + ${profileUser.username}">@username</p>
+                </div>
+            </div>
+
+            <a th:href="@{/user/{id}(id=${profileUser.id})}"
+               class="text-sm text-blue-600 hover:underline">
+                ← Quay lại trang cá nhân
+            </a>
+        </div>
+
+        <!-- TAB BAR -->
+        <div class="bg-white rounded-lg shadow-sm px-4">
+            <div class="flex gap-1 overflow-x-auto border-b border-gray-200">
+
+                <a th:href="@{/user/{id}(id=${profileUser.id})}"
+                   class="px-5 py-3 text-sm whitespace-nowrap transition"
+                   th:classappend="${activeTab}=='posts' ? ' text-blue-600 border-b-2 border-blue-600 font-semibold'
+                                                        : ' text-gray-600 hover:bg-gray-100'">
+                    Bài viết
+                </a>
+
+                <a th:href="@{/user/{id}/about(id=${profileUser.id})}"
+                   class="px-5 py-3 text-sm whitespace-nowrap transition"
+                   th:classappend="${activeTab}=='about' ? ' text-blue-600 border-b-2 border-blue-600 font-semibold'
+                                                         : ' text-gray-600 hover:bg-gray-100'">
+                    Giới thiệu
+                </a>
+
+                <a th:href="@{/user/{id}/friends(id=${profileUser.id})}"
+                   class="px-5 py-3 text-sm whitespace-nowrap transition"
+                   th:classappend="${activeTab}=='friends' ? ' text-blue-600 border-b-2 border-blue-600 font-semibold'
+                                                           : ' text-gray-600 hover:bg-gray-100'">
+                    Bạn bè
+                </a>
+
+                <a th:href="@{/user/{id}/photos(id=${profileUser.id})}"
+                   class="px-5 py-3 text-sm whitespace-nowrap transition"
+                   th:classappend="${activeTab}=='photos' ? ' text-blue-600 border-b-2 border-blue-600 font-semibold'
+                                                          : ' text-gray-600 hover:bg-gray-100'">
+                    Ảnh
+                </a>
+
+                <a th:href="@{/user/{id}/videos(id=${profileUser.id})}"
+                   class="px-5 py-3 text-sm whitespace-nowrap transition"
+                   th:classappend="${activeTab}=='videos' ? ' text-blue-600 border-b-2 border-blue-600 font-semibold'
+                                                          : ' text-gray-600 hover:bg-gray-100'">
+                    Video
+                </a>
+            </div>
+
+            <!-- NỘI DUNG VIDEO -->
+            <div class="py-6">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-xl font-semibold">Video</h2>
+                </div>
+
+                <div class="text-gray-500 text-sm py-8 text-center">
+                    Hiện tại chưa có video nào được đăng.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<section th:fragment="script">
+    <!-- sau này nếu có list video (URL, thumbnail, v.v.) thì mình update JS ở đây -->
+</section>
+
+</body>
+</html>
