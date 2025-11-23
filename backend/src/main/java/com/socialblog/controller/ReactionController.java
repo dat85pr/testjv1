@@ -27,6 +27,8 @@ public class ReactionController {
      * Thêm hoặc đổi reaction
      * POST /reaction/add
      * Body: { "postId": 1, "type": "LIKE" }
+     * ✅ Gọi service để thêm/đổi reaction
+     * ReactionService sẽ tự động trigger notificationService.createReactionNotification()
      */
     @PostMapping("/add")
     public ResponseEntity<Map<String, Object>> addReaction(
@@ -39,7 +41,7 @@ public class ReactionController {
             // Lấy user từ session
             User user = getUserFromSession(session);
 
-            // Gọi service để thêm/đổi reaction
+            // ✅ Gọi service để thêm/đổi reaction
             long totalReactions = reactionService.addOrUpdateReaction(request, user);
 
             // Trả về response thành công

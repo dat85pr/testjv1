@@ -3,9 +3,9 @@ spring:
     name: social-blog
 
   datasource:
-    url: jdbc:mysql://localhost:3306/social_blog?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh
+    url: jdbc:mysql://localhost:3310/social_blog?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Ho_Chi_Minh
     username: root
-    password: "admin123"
+    password: "dat31505"
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -36,7 +36,7 @@ spring:
     time-zone: Asia/Ho_Chi_Minh
 
 server:
-  port: 8081
+  port: 8080
 
 logging:
   level:
